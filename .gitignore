@@ -1,0 +1,11 @@
+# Python 缓存文件
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# 虚拟环境目录（如果以后有）
+venv/
+.env
+
+# 本地测试产生的模型压缩包（不要传到云端）
+*.tar
