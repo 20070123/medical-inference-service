@@ -1,4 +1,4 @@
-name: CI Pipeline
+name: CI/CD Pipeline
 
 on:
   push:
@@ -7,7 +7,6 @@ on:
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -22,3 +21,27 @@ jobs:
 
       - name: Run tests
         run: python -m pytest tests/ -v
+
+  build-and-push:
+    needs: build-and-test          # 核心：只有上一步测试通过了，才执行这一步
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write              # 赋予机器人推送镜像到 GitHub Packages (GHCR) 的权限
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }} # 使用 GitHub 自动生成的临时 Token 登录，无需手动配密码
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: ghcr.io/${{ github.repository }}/medical-inference:latest # 推送到你的仓库名下
