@@ -15,7 +15,8 @@ def test_predict():
 	"spo2": 95
 	}
 
-	response= client.post("/predict",json=payload)
+	headers = {"X-API-Key": "hospital_secret_123"}
+	response= client.post("/predict",json=payload, headers=headers)
 
 	assert response.status_code == 200
 

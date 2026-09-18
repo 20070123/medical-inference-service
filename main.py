@@ -1,9 +1,15 @@
-from fastapi import FastAPI
+from fastapi import FastAPI,Request
+from fastapi.responses import JSONResponse
 from pydantic import Field,BaseModel
 import logging
 import time
+import os
+from dotenv import load_dotenv
 
-MODEL_VERSION= "v1"
+load_dotenv()
+MODEL_VERSION= os.getenv("MODEL_VERSION", "v1")
+MODEL_PATH= os.getenv("MODEL_PATH", "models/model.joblib")
+API_KEY= os.getenv("API_KEY", "default_secret")
 
 logging.basicConfig(
     level=logging.INFO,
@@ -12,6 +18,24 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 app=FastAPI()
+
+from fastapi import HTTPException, Security, Depends
+from fastapi.security import APIKeyHeader
+
+api_key_header = APIKeyHeader(name="X-API-Key")
+
+def verify_api_key(api_key: str = Security(api_key_header)):
+    if api_key != API_KEY:
+        raise HTTPException(status_code=401, detail="Invalid API Key")
+    return api_key
+
+@app.exception_handler(Exception)
+async def global_exception_handler(request: Request, exc: Exception):
+    logger.error(f"Unexpected error: {exc}")
+    return JSONResponse(
+        status_code=500,
+        content={"message": "服务器内部错误，请稍后重试", "status": "error"},
+    )
 
 @app.get("/health")
 def health():
@@ -25,10 +49,10 @@ class PredictRequest(BaseModel):
 import joblib
 import numpy as np
 
-model=joblib.load("models/model.joblib")
+model=joblib.load(MODEL_PATH)
 
 @app.post("/predict")
-def predict (req : PredictRequest):
+def predict(req: PredictRequest, api_key: str = Depends(verify_api_key)):
 	start_time = time.time()
 	new_X=np.array([[req.age , req.heart_rate, req.spo2]])
 
