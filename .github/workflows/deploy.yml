@@ -1,8 +1,13 @@
 name: CI/CD Pipeline
+#作用：给这条流水线起个名字，显示在 GitHub Actions 页面上。
+#要不要改：随便改。叫“测试与打包”、“模型部署流水线”都行，纯粹为了好看。
 
 on:
   push:
     branches: [ "main" ]
+#作用：什么时候启动这条流水线？
+#意思：当你往 main 分支推送代码时，触发执行。
+#要不要改：这是最常见的触发条件。如果你以后想手动点按钮触发，可以加一个 workflow_dispatch。
 
 jobs:
   build-and-test:
@@ -21,13 +26,26 @@ jobs:
 
       - name: Run tests
         run: python -m pytest tests/ -v
+# jobs:：下面开始定义任务列表。
+# build-and-test:：这是第一个任务的名称，你随便起。
+# runs-on: ubuntu-latest：不用改。 表示用 GitHub 提供的最新版 Ubuntu 服务器来干活。
+# steps:：下面是一步一步的操作。
+# - name: Checkout code：步骤名叫“下载代码”。
+# uses: actions/checkout@v4：不用改。 用官方工具把仓库里的代码拉下来。
+# - name: Set up Python：步骤名叫“安装 Python”。
+# uses: actions/setup-python@v5：不用改。 用官方工具装 Python。
+# with: python-version: '3.11'：可能改。 你以后项目用 Python 3.10，就改成 '3.10'。这个必须和你的项目匹配，否则跑不起来。
+# - name: Install dependencies：步骤名叫“安装依赖”。
+# run: pip install -r requirements.txt：不用改。 直接执行 pip 命令。
+# - name: Run tests：步骤名叫“跑测试”。
+# run: python -m pytest tests/ -v：可能改。 如果你以后测试文件夹不叫 tests，这里要改路径。
 
   build-and-push:
-    needs: build-and-test          # 核心：只有上一步测试通过了，才执行这一步
+    needs: build-and-test          
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      packages: write              # 赋予机器人推送镜像到 GitHub Packages (GHCR) 的权限
+      packages: write              
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -37,11 +55,30 @@ jobs:
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }} # 使用 GitHub 自动生成的临时 Token 登录，无需手动配密码
+          password: ${{ secrets.GITHUB_TOKEN }} 
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
           context: .
           push: true
-          tags: ghcr.io/${{ github.repository }}/medical-inference:latest # 推送到你的仓库名下
+          tags: ghcr.io/${{ github.repository }}/medical-inference:latest 
+# build-and-push:：这是第二个任务的名称。
+# needs: build-and-test：核心逻辑，不要改。 表示“必须等上一个任务成功，才能开始这个任务”。
+# runs-on: ubuntu-latest：不用改。
+# permissions:：不用改。 给机器人必要的权限。
+# contents: read：可以读你的代码仓库。
+# packages: write：可以写镜像到 GHCR，没这个权限会推送失败。
+# steps:：开始干活。
+# - name: Checkout code / uses: actions/checkout@v4：不用改。 再次下载代码（每个任务都在独立的服务器上，所以必须重新下载）。
+# - name: Log in to GitHub Container Registry：不用改。 登录 GHCR。
+# registry: ghcr.io：目标地址是 GitHub 的镜像仓库。
+# username: ${{ github.actor }}：不用改。 自动填入你的 GitHub 用户名。
+# password: ${{ secrets.GITHUB_TOKEN }}：不用改。 GitHub 自动生成的临时密码，你不需手动配置。
+# - name: Build and push Docker image：不用改。 用官方工具构建并推送镜像。
+# context: .：基本不改。 表示构建上下文是仓库根目录。
+# push: true：不用改。 构建完就推。
+# tags: ghcr.io/${{ github.repository }}/medical-inference:latest：需要你关注。
+# ${{ github.repository }} 会自动变成 20070123/medical-inference-service。
+# 最后的 medical-inference:latest 是你给镜像起的名字和标签，你可以改成 my-model:v1。
+# 以后想改镜像名，就改这里。
