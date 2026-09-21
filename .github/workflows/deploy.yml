@@ -26,6 +26,8 @@ jobs:
 
       - name: Run tests
         run: python -m pytest tests/ -v
+        env:
+          API_KEY: ${{ secrets.API_KEY }}
 # jobs:：下面开始定义任务列表。
 # build-and-test:：这是第一个任务的名称，你随便起。
 # runs-on: ubuntu-latest：不用改。 表示用 GitHub 提供的最新版 Ubuntu 服务器来干活。
@@ -39,7 +41,10 @@ jobs:
 # run: pip install -r requirements.txt：不用改。 直接执行 pip 命令。
 # - name: Run tests：步骤名叫“跑测试”。
 # run: python -m pytest tests/ -v：可能改。 如果你以后测试文件夹不叫 tests，这里要改路径。
-
+# env:：告诉机器人，在跑这一步的时候，给环境里注入一些变量。
+# API_KEY: ${{ secrets.API_KEY }}：意思是“去刚才你配的 GitHub Secrets 保险箱里，找到 API_KEY 这个密钥，把它的值拿过来，作为系统环境变量 API_KEY 传进去。”
+# 这样一来，测试代码里 os.getenv("API_KEY") 就能顺利读到 "hospital_secret_123"，测试就不会报 401 了。
+ 
   build-and-push:
     needs: build-and-test          
     runs-on: ubuntu-latest
