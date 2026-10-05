@@ -14,7 +14,7 @@ def test_health():
 def test_predict():
     payload = {"age": 60, "heart_rate": 85, "spo2": 95}
 
-    api_key = os.getenv("API_KEY","default_secret")
+    api_key = os.getenv("DOCTOR_API_KEY","default_secret")
     headers = {"X-API-Key": api_key}
 
     response = client.post("/predict", json=payload, headers=headers)

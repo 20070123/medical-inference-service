@@ -30,7 +30,7 @@ jobs:
       - name: Run tests
         run: python -m pytest tests/ -v
         env:
-          API_KEY: ${{ secrets.API_KEY }}
+          DOCTOR_API_KEY: ${{ secrets.DOCTOR_API_KEY }}
 # jobs:：下面开始定义任务列表。
 # build-and-test:：这是第一个任务的名称，你随便起。
 # runs-on: ubuntu-latest：不用改。 表示用 GitHub 提供的最新版 Ubuntu 服务器来干活。
