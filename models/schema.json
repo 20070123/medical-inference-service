@@ -1,0 +1,7 @@
+{
+    "features": [
+        {"name": "age", "type": "int", "ge": 0, "le": 120},
+        {"name": "heart_rate", "type": "int", "ge":20, "le":250},
+        {"name": "spo2", "type": "int", "ge": 0, "le": 100}
+    ]
+}

@@ -12,9 +12,9 @@ y=np.array([0,0,1,1])
 print("X_shape:",X.shape)
 print("y_shape:",y.shape)
 
+from sklearn.linear_model import LogisticRegression
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
-from sklearn.linear_model import LogisticRegression
 
 pipe=Pipeline([
 	("scaler",StandardScaler()),
@@ -31,4 +31,5 @@ print("打印参数：",pipe.named_steps["clf"].coef_)
 print("打印截距：",pipe.named_steps["clf"].intercept_)
 
 import joblib
+
 joblib.dump(pipe,"models/model.joblib")

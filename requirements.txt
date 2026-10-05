@@ -7,3 +7,5 @@ pydantic
 pytest
 httpx
 python-dotenv
+slowapi
+ruff
