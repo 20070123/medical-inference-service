@@ -77,6 +77,13 @@ except Exception as e: # noqa: BLE001
     logger.error(f"模型加载失败：{MODEL_PATH}, 错误：{e}")
     raise RuntimeError(f"模型加载失败, 路径：{MODEL_PATH}")
 
+
+@app.get("/v1/schema")
+def get_schema():
+    # 直接读取原始文件，原样返回给前端
+    with open("models/schema.json", "r", encoding="utf-8") as f:
+        return json.load(f)
+
 # 阶段八：预测接口（核心业务逻辑）
 @app.post("/v1/predict")
 def predict(req: DynamicRequest, api_key: str = Depends(verify_api_key), X_client_id: str = Header(default="unknown")):

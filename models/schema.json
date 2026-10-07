@@ -1,7 +1,31 @@
 {
-    "features": [
-        {"name": "age", "type": "int", "ge": 0, "le": 120},
-        {"name": "heart_rate", "type": "int", "ge":20, "le":250},
-        {"name": "spo2", "type": "int", "ge": 0, "le": 100}
-    ]
+  "features": [
+    {
+      "name": "age",
+      "label": "年龄",
+      "type": "float",
+      "min": 0,
+      "max": 120,
+      "step": 1,
+      "default": 60
+    },
+    {
+      "name": "heart_rate",
+      "label": "心率",
+      "type": "float",
+      "min": 20,
+      "max": 250,
+      "step": 1,
+      "default": 85
+    },
+    {
+      "name": "spo2",
+      "label": "血氧",
+      "type": "float",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "default": 95
+    }
+  ]
 }
