@@ -17,7 +17,7 @@ def test_predict():
     api_key = os.getenv("DOCTOR_API_KEY","default_secret")
     headers = {"X-API-Key": api_key}
 
-    response = client.post("/predict", json=payload, headers=headers)
+    response = client.post("/v1/predict", json=payload, headers=headers)
 
     assert response.status_code == 200
     response_data = response.json()
