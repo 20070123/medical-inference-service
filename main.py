@@ -16,6 +16,7 @@ from pydantic import Field, create_model
 load_dotenv()
 MODEL_VERSION=os.getenv("MODEL_VERSION","v1")
 MODEL_PATH=os.getenv("MODEL_PATH","models/model.joblib")
+APP_ENV = os.getenv("APP_ENV", "dev")
 API_KEY=os.getenv("DOCTOR_API_KEY")
 if not API_KEY:
     raise RuntimeError("必须设置 DOCTOR_API_KEY 环境变量")
@@ -28,7 +29,10 @@ logging.basicConfig(
 logger=logging.getLogger(__name__)
 
 # 阶段四：创建 FastAPI 应用 + 全局异常处理
-app=FastAPI()
+app=FastAPI(title="模型推理服务", 
+    docs_url="/docs" if APP_ENV == "dev" else None,
+    redoc_url="/redoc" if APP_ENV == "dev" else None
+)
 
 @app.exception_handler(Exception)
 async def global_exception_handler(request: Request, exc: Exception):
@@ -66,10 +70,15 @@ def build_dynamic_request(features):
 DynamicRequest=build_dynamic_request(FEATURES)
 
 # 阶段七：加载模型（启动时只加载一次）
-model = joblib.load(MODEL_PATH)
+try:
+    model = joblib.load(MODEL_PATH)
+    logger.info(f"模型加载成功：{MODEL_PATH}")
+except Exception as e:
+    logger.error(f"模型加载失败：{MODEL_PATH}, 错误：{e}")
+    raise RuntimeError(f"模型加载失败, 路径：{MODEL_PATH}")
 
 # 阶段八：预测接口（核心业务逻辑）
-@app.post("/predict")
+@app.post("/v1/predict")
 def predict(req: DynamicRequest, api_key: str = Depends(verify_api_key), X_client_id: str = Header(default="unknown")):
     # 1. 记录开始时间
     start_time = time.time()
