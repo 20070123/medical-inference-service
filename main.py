@@ -73,7 +73,7 @@ DynamicRequest=build_dynamic_request(FEATURES)
 try:
     model = joblib.load(MODEL_PATH)
     logger.info(f"模型加载成功：{MODEL_PATH}")
-except Exception as e:
+except Exception as e: # noqa: BLE001
     logger.error(f"模型加载失败：{MODEL_PATH}, 错误：{e}")
     raise RuntimeError(f"模型加载失败, 路径：{MODEL_PATH}")
 
